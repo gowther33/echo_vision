@@ -14,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:ui' as ui;
 // import 'package:path_provider/path_provider.dart';
-import 'package:echo_vision/color_name.dart';
+import 'package:echo_vision/utils/color_name.dart';
 
 class UtilityMethods {
   final FlutterTts _flutterTts = FlutterTts(); // For tts
@@ -60,7 +60,7 @@ class UtilityMethods {
     }
   }
 
-  // Speak labels
+  // Speak labels & position detection
   void speakLabels(
       List<ResultObjectDetection?> objDetect, List<String?> objColors) {
     if (objDetect.isNotEmpty) {
@@ -77,7 +77,7 @@ class UtilityMethods {
         double center_x = (bbox[0] + bbox[2] / 2);
         double center_y = ((bbox[1] + bbox[3]) / 2);
 
-        // Position logic
+        // Detect Positions
         if (center_x > 0 &&
             center_x < w ~/ 2 &&
             center_y > 0 &&

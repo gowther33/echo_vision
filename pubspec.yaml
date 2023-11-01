@@ -33,12 +33,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_pytorch: ^1.0.1
-  flutter_svg: ^2.0.8
   flutter_tts: ^3.7.0
   gif: ^2.2.0
   http: ^1.1.0
   image: ^3.0.2
   image_picker: ^0.8.6
+  image_painter: ^0.6.1
   palette_generator: ^0.3.3+2
 
 dev_dependencies:

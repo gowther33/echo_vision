@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:echo_vision/home_screen.dart';
+import 'package:echo_vision/screens/home_screen.dart';
+import 'package:echo_vision/screens/custom_render_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
+      // home: const HomeScreen(),
+      home: const CustomRenderScreen(),
     );
   }
 }
