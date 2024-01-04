@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool noImage = true; // Check if user has selected image
   bool isSpeaking = false;
-  bool detecting = false; // Check is still detecting
+  bool detecting = false; // Check if still detecting
   bool detected = false; // Check if detections have finish
 
   // Utility funtions
@@ -148,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Upload function
   void upload() async {
-    List<List<double>> box = [];
     if (_image != null) {
       var uri = Uri.parse("http://192.168.1.102:8000/object_detection");
 

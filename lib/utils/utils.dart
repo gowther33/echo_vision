@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pytorch/pigeon.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -13,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:ui' as ui;
-// import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:echo_vision/utils/color_name.dart';
 
 class UtilityMethods {
@@ -62,7 +63,9 @@ class UtilityMethods {
 
   // Speak labels & position detection
   void speakLabels(
-      List<ResultObjectDetection?> objDetect, List<String?> objColors) {
+    List<ResultObjectDetection?> objDetect,
+    List<String?> objColors,
+  ) {
     if (objDetect.isNotEmpty) {
       String label = '';
       int index = 0;
@@ -107,8 +110,105 @@ class UtilityMethods {
     }
   }
 
+  // Speak labels & position detection ***
+  void speakLabelCustom(List<List<double>> objDetect, List<String>? classes,
+      List<String?> objColors) {
+    if (objDetect.isNotEmpty) {
+      String label = '';
+      int index = 0;
+      for (var i = 0; i < objDetect.length; i++) {
+        List<double> bbox = [
+          objDetect[i][0] * w,
+          objDetect[i][1] * h,
+          objDetect[i][2] * w,
+          objDetect[i][3] * h,
+        ];
+        double centerX = (bbox[0] + bbox[2] / 2);
+        double centerY = ((bbox[1] + bbox[3]) / 2);
+
+        // Detect Positions
+        if (centerX > 0 &&
+            centerX < w ~/ 2 &&
+            centerY > 0 &&
+            centerY < h ~/ 2) {
+          label += '${classes![i]} at Top Left, of color ${objColors[index]}';
+        } else if (centerX >= w ~/ 2 &&
+            centerX <= w &&
+            centerY > 0 &&
+            centerY < h ~/ 2) {
+          label += '${classes![i]} at Top Right, of color ${objColors[index]}';
+        } else if (centerX > 0 &&
+            centerX < w ~/ 2 &&
+            centerY >= h ~/ 2 &&
+            centerY <= h) {
+          label +=
+              '${classes![i]} at Bottom Left, of color ${objColors[index]}';
+        } else {
+          label +=
+              '${classes![i]} at Bottom Right, of color ${objColors[index]}';
+        }
+        index += 1;
+      }
+      // Speak labels
+      _flutterTts.speak(label);
+    }
+  }
+
   void stopSpeaking() {
     _flutterTts.stop();
+  }
+
+  // Detect Color **
+  Future<List<String?>> detectColorCustom(
+    List<List<double?>> objDetect,
+  ) async {
+    List<String> dominantColors = [];
+    // To save image
+    // int id = 0;
+    // String filename;
+    // // final Future<Directory> appDocumentsDir = getApplicationDocumentsDirectory();
+    // final Directory tempDir = await getTemporaryDirectory();
+    // String path = tempDir.path;
+    // print("Temp Path: $path");
+    for (var i = 0; i < objDetect.length; i++) {
+      // Crop the image based on the detected object's coordinates
+      img_.Image croppedObj = img_.copyCrop(
+        img,
+        (objDetect[i][0]! * w).toInt(),
+        (objDetect[i][1]! * h).toInt(),
+        (objDetect[i][2]! * w).toInt(),
+        (objDetect[i][3]! * h).toInt(),
+      );
+
+      // Encode the resulting image to the PNG image format.
+      // final png = img_.encodePng(croppedObj);
+
+      // Save image
+      // Write the PNG formatted data to a file.
+      // Save to filesystem
+      // filename = '$path/Image$id.png';
+
+      // final file = File(filename);
+
+      // copy the file to a new path
+      // Save image
+      // await file.writeAsBytes(png);
+
+      // convert to dart ui image
+      ui.Image uiImage = await convertImgToUiImage(croppedObj);
+      PaletteGenerator paletteGenerator =
+          await PaletteGenerator.fromImage(uiImage);
+
+      try {
+        ui.Color dominantColor = paletteGenerator.dominantColor!.color;
+        dominantColors.add(getColorName(dominantColor));
+      } catch (e) {
+        dominantColors.add("Black");
+      }
+      // id += 1;
+    }
+    // print("************Detected Objects: ${objDetect.length} ************************");
+    return dominantColors;
   }
 
   // Detect Color

@@ -15,7 +15,6 @@ class _LoaderStateState extends State<LoaderState>
 
   @override
   void initState() {
-    // TODO: implement initState
     controller1 = GifController(vsync: this);
     super.initState();
   }
@@ -32,7 +31,7 @@ class _LoaderStateState extends State<LoaderState>
         elevation: 20,
         borderRadius: BorderRadius.circular(10.0),
         child: Container(
-          // color: Color(0XFF0000FFFF),
+            // color: Color(0XFF0000FFFF),
             width: 100,
             height: 100,
             decoration: BoxDecoration(
@@ -45,7 +44,7 @@ class _LoaderStateState extends State<LoaderState>
               child: Gif(
                 image: const AssetImage("images/loader.gif"),
                 controller:
-                controller1, // if duration and fps is null, original gif fps will be used.
+                    controller1, // if duration and fps is null, original gif fps will be used.
                 autostart: Autostart.loop,
                 onFetchCompleted: () {
                   controller1.reset();

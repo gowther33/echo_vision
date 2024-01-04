@@ -4,61 +4,79 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
 import 'dart:io';
+import 'dart:math';
 
 class BoundingBoxesPainter extends CustomPainter {
-  final List<List<dynamic>> boundingBoxes;
-  // final List<String> classes;
-  final Size imageSize;
-  final String imagePath;
-  late ui.Image image;
+  final ui.Image image;
+  final List<List<double>> boundingBoxes;
+  final List<String>? classes;
+  final List<String?> colors;
+  // final String imagePath;
 
-  BoundingBoxesPainter(this.imagePath, this.boundingBoxes, this.imageSize);
-
-  Future<ui.Image> loadImage() async {
-    File imageFile = File(imagePath);
-    Uint8List imageBytes = await imageFile.readAsBytes();
-    return await decodeImageFromList(imageBytes);
-  }
+  BoundingBoxesPainter(
+    this.image,
+    this.boundingBoxes,
+    this.classes,
+    this.colors,
+  );
 
   @override
   void paint(Canvas canvas, Size size) {
-    image = loadImage() as ui.Image;
+    // double scaleX = size.width / imageSize.width;
+    // double scaleY = size.height / imageSize.height;
 
-    double scaleX = size.width / imageSize.width;
-    double scaleY = size.height / imageSize.height;
+    // print("Image Dimensions");
+    // print("w:${imageSize.width}");
+    // print("h:${imageSize.height}");
+
+    Paint paint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = 5
+      ..style = PaintingStyle.stroke;
 
     canvas.drawImage(image, Offset.zero, Paint());
+    // Offset a = Offset(0, 0);
+    // Offset b = Offset(100 * scaleX, 100 * scaleY);
 
+    String labelTxt;
+    final double maxFont = 25;
     for (int i = 0; i < boundingBoxes.length; i++) {
-      // List<dynamic> box = boundingBoxes[i];
+      List<double> box = boundingBoxes[i];
+      labelTxt = "${classes?[i]}-${colors[i]}";
 
-      // double left = box[0] * scaleX;
-      // double top = box[1] * scaleY;
-      // double right = box[2] * scaleX;
-      // double bottom = box[3] * scaleY;
+      double left = box[0];
+      double top = box[1];
+      double right = box[2];
+      double bottom = box[3];
 
-      // canvas.drawRect(
-      //   Rect.fromLTRB(left, top, right, bottom),
-      //   Paint()
-      //     ..color = Colors.red // Set the color for the bounding box
-      //     ..style = PaintingStyle.stroke
-      //     ..strokeWidth = 2, // Set the width of the bounding box
-      // );
+      canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
+
+      double tempFont = box.reduce(max) / boundingBoxes.length;
+
+      // Use the minimum of the calculated size and the maximum allowed size
+      double font = tempFont < maxFont ? tempFont : maxFont;
 
       // Draw text showing the class
-      // TextSpan span = TextSpan(
-      //   style: TextStyle(color: Colors.red, fontSize: 16),
-      //   text: classes[i],
-      // );
+      TextSpan span = TextSpan(
+        style: TextStyle(
+          color: Colors.amber,
+          fontSize: font,
+        ),
+        text: labelTxt,
+      );
 
-      // TextPainter tp = TextPainter(
-      //   text: span,
-      //   textAlign: TextAlign.left,
-      //   textDirection: TextDirection.ltr,
-      // );
+      TextPainter tp = TextPainter(
+        text: span,
+        textAlign: TextAlign.left,
+        textDirection: TextDirection.ltr,
+      );
 
-      // tp.layout();
-      // tp.paint(canvas, Offset(left, top - 20));
+      // var l = ((left + right) / 2) - 30;
+      tp.layout();
+      tp.paint(
+        canvas,
+        Offset(left, ((top + bottom) / 2) + (bottom - top) / 2),
+      );
     }
   }
 
