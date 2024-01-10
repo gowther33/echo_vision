@@ -17,12 +17,13 @@ import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:echo_vision/utils/color_name.dart';
 
+import 'package:echo_vision/utils/globals.dart';
+
 class UtilityMethods {
   final FlutterTts _flutterTts = FlutterTts(); // For tts
   final ImagePicker _picker = ImagePicker();
-  late img_.Image img;
-  late int w;
-  late int h;
+  // late int w;
+  // late int h;
 
   UtilityMethods() {
     init();
@@ -52,8 +53,8 @@ class UtilityMethods {
           bytes)!; // Use the alias(img_) to access the Image class.
 
       // height and width of image
-      h = img.height;
-      w = img.width;
+      h = img!.height;
+      w = img!.width;
 
       return image;
     } else {
@@ -72,31 +73,31 @@ class UtilityMethods {
       for (var element in objDetect) {
         // For bounding box
         List<double> bbox = [
-          element!.rect.left * w,
-          element.rect.top * h,
-          element.rect.right * w,
-          element.rect.bottom * h
+          element!.rect.left * w!,
+          element.rect.top * h!,
+          element.rect.right * w!,
+          element.rect.bottom * h!
         ];
         double center_x = (bbox[0] + bbox[2] / 2);
         double center_y = ((bbox[1] + bbox[3]) / 2);
 
         // Detect Positions
         if (center_x > 0 &&
-            center_x < w ~/ 2 &&
+            center_x < w! ~/ 2 &&
             center_y > 0 &&
-            center_y < h ~/ 2) {
+            center_y < h! ~/ 2) {
           label +=
               '${element.className} at Top Left, of color ${objColors[index]}, ';
-        } else if (center_x >= w ~/ 2 &&
-            center_x <= w &&
+        } else if (center_x >= w! ~/ 2 &&
+            center_x <= w! &&
             center_y > 0 &&
-            center_y < h ~/ 2) {
+            center_y < h! ~/ 2) {
           label +=
               '${element.className} at Top Right, of color ${objColors[index]}, ';
         } else if (center_x > 0 &&
-            center_x < w ~/ 2 &&
-            center_y >= h ~/ 2 &&
-            center_y <= h) {
+            center_x < w! ~/ 2 &&
+            center_y >= h! ~/ 2 &&
+            center_y <= h!) {
           label +=
               '${element.className} at Bottom Left, of color ${objColors[index]}, ';
         } else {
@@ -118,29 +119,29 @@ class UtilityMethods {
       int index = 0;
       for (var i = 0; i < objDetect.length; i++) {
         List<double> bbox = [
-          objDetect[i][0] * w,
-          objDetect[i][1] * h,
-          objDetect[i][2] * w,
-          objDetect[i][3] * h,
+          objDetect[i][0] * w!,
+          objDetect[i][1] * h!,
+          objDetect[i][2] * w!,
+          objDetect[i][3] * h!,
         ];
         double centerX = (bbox[0] + bbox[2] / 2);
         double centerY = ((bbox[1] + bbox[3]) / 2);
 
         // Detect Positions
         if (centerX > 0 &&
-            centerX < w ~/ 2 &&
+            centerX < w! ~/ 2 &&
             centerY > 0 &&
-            centerY < h ~/ 2) {
+            centerY < h! ~/ 2) {
           label += '${classes![i]} at Top Left, of color ${objColors[index]}';
-        } else if (centerX >= w ~/ 2 &&
-            centerX <= w &&
+        } else if (centerX >= w! ~/ 2 &&
+            centerX <= w! &&
             centerY > 0 &&
-            centerY < h ~/ 2) {
+            centerY < h! ~/ 2) {
           label += '${classes![i]} at Top Right, of color ${objColors[index]}';
         } else if (centerX > 0 &&
-            centerX < w ~/ 2 &&
-            centerY >= h ~/ 2 &&
-            centerY <= h) {
+            centerX < w! ~/ 2 &&
+            centerY >= h! ~/ 2 &&
+            centerY <= h!) {
           label +=
               '${classes![i]} at Bottom Left, of color ${objColors[index]}';
         } else {
@@ -158,59 +159,6 @@ class UtilityMethods {
     _flutterTts.stop();
   }
 
-  // Detect Color **
-  Future<List<String?>> detectColorCustom(
-    List<List<double?>> objDetect,
-  ) async {
-    List<String> dominantColors = [];
-    // To save image
-    // int id = 0;
-    // String filename;
-    // // final Future<Directory> appDocumentsDir = getApplicationDocumentsDirectory();
-    // final Directory tempDir = await getTemporaryDirectory();
-    // String path = tempDir.path;
-    // print("Temp Path: $path");
-    for (var i = 0; i < objDetect.length; i++) {
-      // Crop the image based on the detected object's coordinates
-      img_.Image croppedObj = img_.copyCrop(
-        img,
-        (objDetect[i][0]! * w).toInt(),
-        (objDetect[i][1]! * h).toInt(),
-        (objDetect[i][2]! * w).toInt(),
-        (objDetect[i][3]! * h).toInt(),
-      );
-
-      // Encode the resulting image to the PNG image format.
-      // final png = img_.encodePng(croppedObj);
-
-      // Save image
-      // Write the PNG formatted data to a file.
-      // Save to filesystem
-      // filename = '$path/Image$id.png';
-
-      // final file = File(filename);
-
-      // copy the file to a new path
-      // Save image
-      // await file.writeAsBytes(png);
-
-      // convert to dart ui image
-      ui.Image uiImage = await convertImgToUiImage(croppedObj);
-      PaletteGenerator paletteGenerator =
-          await PaletteGenerator.fromImage(uiImage);
-
-      try {
-        ui.Color dominantColor = paletteGenerator.dominantColor!.color;
-        dominantColors.add(getColorName(dominantColor));
-      } catch (e) {
-        dominantColors.add("Black");
-      }
-      // id += 1;
-    }
-    // print("************Detected Objects: ${objDetect.length} ************************");
-    return dominantColors;
-  }
-
   // Detect Color
   Future<List<String?>> detectColor(
     List<ResultObjectDetection?> objDetect,
@@ -226,11 +174,11 @@ class UtilityMethods {
     for (var element in objDetect) {
       // Crop the image based on the detected object's coordinates
       img_.Image croppedObj = img_.copyCrop(
-          img,
-          (element!.rect.left * w).toInt(),
-          (element.rect.top * h).toInt(),
-          (element.rect.right * w).toInt(),
-          (element.rect.bottom * h).toInt());
+          img!,
+          (element!.rect.left * w!).toInt(),
+          (element.rect.top * h!).toInt(),
+          (element.rect.right * w!).toInt(),
+          (element.rect.bottom * h!).toInt());
 
       // convert to dart ui image
       ui.Image uiImage = await convertImgToUiImage(croppedObj);
