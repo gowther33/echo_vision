@@ -12,7 +12,7 @@ import 'package:echo_vision/utils/globals.dart';
 
 class DetectObjectColor {
   // Detect Color **
-  Future<List<String?>> detectColorCustom(
+  Future<List<String>> detectColorCustom(
     List<List<double?>> objDetect,
   ) async {
     List<String> dominantColors = [];

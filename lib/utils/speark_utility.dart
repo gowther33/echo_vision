@@ -11,13 +11,13 @@ class TextSpeaker {
   void init() async {
     await _flutterTts.setLanguage('en-US');
     await _flutterTts.setVolume(0.8);
-    await _flutterTts.setSpeechRate(0.2);
+    await _flutterTts.setSpeechRate(0.4);
   }
 
 // labels = class + position + color
 
   // Speak labels & position detection ***
-  void speakLabelCustom(String labels) {
+  void speakLabels(String labels) {
     // Speak labels
     _flutterTts.speak(labels);
   }

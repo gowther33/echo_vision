@@ -2,9 +2,12 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
+import 'package:echo_vision/loader/loader_state.dart';
+import 'package:echo_vision/utils/speak_provider_utility.dart';
 import 'package:flutter/material.dart';
 
 import 'package:echo_vision/utils/utils.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -16,6 +19,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/bounding_box.dart';
+import '../utils/position_utility.dart';
+import '../utils/detect_color_utility.dart';
+import '../utils/speark_utility.dart';
+import '../utils/speark_utility.dart';
+import '../utils/globals.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class CustomRenderScreen extends StatefulWidget {
   final String imagePath;
@@ -34,7 +43,8 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
   // Extract bounding box data from the response
   List<List<double>> boundingBox = [];
   List<String>? classes;
-  List<String?> objColors = [];
+  List<String> objColors = [];
+  List<String> positions = [];
 
   bool noImage = true; // Check if user has selected image
   bool detecting = false; // Check is still detecting
@@ -43,6 +53,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
 
   // Utility funtions
   UtilityMethods utilsObj = UtilityMethods();
+  TextSpeaker speaker = TextSpeaker();
 
   @override
   void initState() {
@@ -54,6 +65,9 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
     final File imagefile = File(widget.imagePath);
     Uint8List bytes = imagefile.readAsBytesSync();
     final im = await decodeImageFromList(bytes);
+    img = img_.decodeImage(bytes);
+    w = img!.width;
+    h = img!.height;
     setState(() {
       uiIamge = im;
       _image = File(widget.imagePath);
@@ -79,6 +93,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
         boundingBox = [];
         classes = [];
         objColors = [];
+        positions = [];
       });
     }
   }
@@ -93,6 +108,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
       boundingBox = [];
       classes = [];
       objColors = [];
+      positions = [];
     });
   }
 
@@ -100,8 +116,10 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
     setState(() {
       isSpeaking = true;
     });
-
-    utilsObj.speakLabelCustom(boundingBox, classes, objColors);
+    TtsProvider speechProvider = TtsProvider(classes!, positions, objColors);
+    speechProvider.setString();
+    String speech = speechProvider.getString();
+    speaker.speakLabels(speech);
   }
 
   void stop() {
@@ -115,10 +133,12 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
   void detect() async {
     setState(() {
       detecting = true;
+      // SemanticsService.announce("Detections Running", TextDirection.ltr);
+      speaker.speakLabels("Dectections Running");
     });
 
     if (_image != null) {
-      var uri = Uri.parse("http://192.168.1.103:8000/object_detection");
+      var uri = Uri.parse("http://192.168.1.100:8000/object_detection");
 
       var request = http.MultipartRequest("POST", uri);
 
@@ -156,12 +176,14 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
         classes = class_;
 
         // Get Colors
-        objColors = await utilsObj.detectColorCustom(boundingBox);
-
-        print("Colors ******** : ${objColors}");
+        objColors = await DetectObjectColor().detectColorCustom(boundingBox);
+        // Get positions
+        positions = ObjectsPostionFinder(boundingBox).getPosition();
 
         setState(() {
           detected = true;
+          // SemanticsService.announce("Detections Finished", TextDirection.ltr);
+          speaker.speakLabels("Detections Finished");
         });
       } else {
         utilsObj.showSnackBar(context, "Image Uploaded Failed");
@@ -184,57 +206,57 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
           backgroundColor: Colors.lightBlue.shade200,
         ),
         backgroundColor: const Color.fromARGB(237, 35, 77, 139),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // If noImage then show text
-            noImage
-                ? const Center(
-                    child: Text(
-                      "Give Image to Run Detections",
-                      style: TextStyle(
-                        color: Colors.white,
+        body: Semantics(
+          label: "Image screen",
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // If noImage then show text
+              noImage
+                  ? const Center(
+                      child: Text(
+                        "Give Image to Run Detections",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  )
-                : detecting // if detections are running
-                    ? detected // if detections finished
-                        ? Expanded(
-                            child: FittedBox(
-                              child: SizedBox(
-                                width: uiIamge!.width.toDouble(),
-                                height: uiIamge!.height.toDouble(),
-                                child: CustomPaint(
-                                  painter: BoundingBoxesPainter(
-                                    uiIamge!,
-                                    boundingBox,
-                                    classes,
-                                    objColors,
+                    )
+                  : detecting // if detections are running
+                      ? detected // if detections finished
+                          ? Expanded(
+                              child: FittedBox(
+                                child: SizedBox(
+                                  width: uiIamge!.width.toDouble(),
+                                  height: uiIamge!.height.toDouble(),
+                                  child: CustomPaint(
+                                    painter: BoundingBoxesPainter(
+                                      uiIamge!,
+                                      boundingBox,
+                                      classes,
+                                      objColors,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        : const Text(
-                            "Running Detections",
-                            style: TextStyle(color: Colors.white),
-                          )
-                    : Expanded(
-                        child: FittedBox(
-                          fit: BoxFit.fill,
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: 400,
-                            height: 600,
-                            child: Image(
-                              image: MemoryImage(
-                                _image!.readAsBytesSync(),
+                            )
+                          : const Center(child: LoaderState())
+                      : Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 400,
+                              height: 600,
+                              child: Image(
+                                image: MemoryImage(
+                                  _image!.readAsBytesSync(),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-          ],
+            ],
+          ),
         ),
         bottomNavigationBar: BottomAppBar(
           color: ui.Color.fromARGB(255, 105, 66, 112),
@@ -243,34 +265,53 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               detected
-                  ? ElevatedButton(
-                      onPressed: clearAll,
-                      child: const Text("Clear"),
+                  ? Semantics(
+                      value: "Clear button press this to clear screen",
+                      child: ElevatedButton(
+                        onPressed: clearAll,
+                        child: const Text("Clear"),
+                      ),
                     )
-                  : ElevatedButton(
-                      onPressed: detect,
-                      child: const Text("Detect"),
+                  : Semantics(
+                      value: "Detect button press this to run detections",
+                      excludeSemantics: true,
+                      child: ElevatedButton(
+                        onPressed: detect,
+                        child: const Text("Detect"),
+                      ),
                     ),
               isSpeaking
-                  ? ElevatedButton(
-                      onPressed: stop,
-                      child: const Text("Stop"),
+                  ? Semantics(
+                      label: "Stop button press this to stop speaking",
+                      child: ElevatedButton(
+                        onPressed: stop,
+                        child: const Text("Stop"),
+                      ),
                     )
-                  : ElevatedButton(
-                      onPressed: speak,
-                      child: const Text("Speak"),
+                  : Semantics(
+                      label: "Speak button press this to start speaking",
+                      child: ElevatedButton(
+                        onPressed: speak,
+                        child: const Text("Speak"),
+                      ),
                     ),
-              ElevatedButton(
-                onPressed: () {
-                  setImage(ImageSource.camera);
-                },
-                child: const Icon(Icons.camera),
+              Semantics(
+                label: "Camera button to capture image",
+                child: ElevatedButton(
+                  onPressed: () {
+                    setImage(ImageSource.camera);
+                  },
+                  child: const Icon(Icons.camera),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  setImage(ImageSource.gallery);
-                },
-                child: const Text("Select"),
+              Semantics(
+                label: "Gallery button to select image from gallery",
+                child: ElevatedButton(
+                  onPressed: () {
+                    setImage(ImageSource.gallery);
+                  },
+                  child: const Text("Select"),
+                ),
               )
             ],
           ),
