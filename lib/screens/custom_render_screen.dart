@@ -126,7 +126,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
     setState(() {
       isSpeaking = false;
     });
-    utilsObj.stopSpeaking();
+    speaker.stopSpeaking();
   }
 
   // Upload function
@@ -259,7 +259,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
           ),
         ),
         bottomNavigationBar: BottomAppBar(
-          color: ui.Color.fromARGB(255, 105, 66, 112),
+          color: const ui.Color.fromARGB(255, 105, 66, 112),
           height: 65,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

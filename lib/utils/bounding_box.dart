@@ -1,9 +1,6 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 // import 'package:image/image.dart' as img;
-import 'dart:io';
 import 'dart:math';
 
 class BoundingBoxesPainter extends CustomPainter {
@@ -39,7 +36,7 @@ class BoundingBoxesPainter extends CustomPainter {
     // Offset b = Offset(100 * scaleX, 100 * scaleY);
 
     String labelTxt;
-    final double maxFont = 25;
+    const double maxFont = 25;
     for (int i = 0; i < boundingBoxes.length; i++) {
       List<double> box = boundingBoxes[i];
       labelTxt = "${classes?[i]}-${colors[i]}";

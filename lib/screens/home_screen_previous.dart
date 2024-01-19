@@ -15,7 +15,7 @@ import 'package:echo_vision/utils/utils.dart';
 
 import 'package:http/http.dart' as http;
 
-// Home Class
+// This screen contains in memory detection model logic
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isSpeaking = true;
     });
 
-    utilsObj.speakLabels(objDetect, objColors);
+    // utilsObj.speakLabels(objDetect, objColors);
   }
 
   void stop() {
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isSpeaking = false;
     });
 
-    utilsObj.stopSpeaking();
+    // utilsObj.stopSpeaking();
   }
 
   //running detections on image
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
         IOUThershold: 0.3);
 
     // Get Colors
-    objColors = await utilsObj.detectColor(objDetect);
+    // objColors = await utilsObj.detectColor(objDetect);
 
     // Schedules timeout for 5*x secs
     scheduleTimeout(5 * 1000);
