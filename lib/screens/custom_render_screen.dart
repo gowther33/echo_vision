@@ -233,7 +233,6 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
                                       uiIamge!,
                                       boundingBox,
                                       classes,
-                                      objColors,
                                     ),
                                   ),
                                 ),
@@ -266,7 +265,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
             children: [
               detected
                   ? Semantics(
-                      value: "Clear button press this to clear screen",
+                      // label: "Clear button press this to clear screen",
                       child: ElevatedButton(
                         onPressed: clearAll,
                         child: const Text("Clear"),

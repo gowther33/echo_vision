@@ -7,14 +7,12 @@ class BoundingBoxesPainter extends CustomPainter {
   final ui.Image image;
   final List<List<double>> boundingBoxes;
   final List<String>? classes;
-  final List<String?> colors;
   // final String imagePath;
 
   BoundingBoxesPainter(
     this.image,
     this.boundingBoxes,
     this.classes,
-    this.colors,
   );
 
   @override
@@ -39,7 +37,7 @@ class BoundingBoxesPainter extends CustomPainter {
     const double maxFont = 25;
     for (int i = 0; i < boundingBoxes.length; i++) {
       List<double> box = boundingBoxes[i];
-      labelTxt = "${classes?[i]}-${colors[i]}";
+      labelTxt = "${classes?[i]}";
 
       double left = box[0];
       double top = box[1];
