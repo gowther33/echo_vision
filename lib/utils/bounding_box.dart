@@ -67,10 +67,11 @@ class BoundingBoxesPainter extends CustomPainter {
       );
 
       // var l = ((left + right) / 2) - 30;
+      // Offset(left, ((top + bottom) / 2) + (bottom - top) / 2),
       tp.layout();
       tp.paint(
         canvas,
-        Offset(left, ((top + bottom) / 2) + (bottom - top) / 2),
+        Offset(left, bottom),
       );
     }
   }

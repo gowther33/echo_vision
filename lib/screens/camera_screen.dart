@@ -48,7 +48,10 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Camera App')),
+      appBar: AppBar(
+        title: const Text('Echo Vision'),
+        backgroundColor: Colors.blue,
+      ),
       body: FutureBuilder(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {

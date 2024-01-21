@@ -22,9 +22,7 @@ import '../utils/bounding_box.dart';
 import '../utils/position_utility.dart';
 import '../utils/detect_color_utility.dart';
 import '../utils/speark_utility.dart';
-import '../utils/speark_utility.dart';
 import '../utils/globals.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 class CustomRenderScreen extends StatefulWidget {
   final String imagePath;
@@ -133,12 +131,13 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
   void detect() async {
     setState(() {
       detecting = true;
-      // SemanticsService.announce("Detections Running", TextDirection.ltr);
-      speaker.speakLabels("Dectections Running");
+      // Prompts talkback to speak
+      SemanticsService.announce("Detections Running", TextDirection.ltr);
+      // speaker.speakLabels("Dectections Running");
     });
 
     if (_image != null) {
-      var uri = Uri.parse("http://192.168.1.100:8000/object_detection");
+      var uri = Uri.parse("http://192.168.1.103:8000/object_detection");
 
       var request = http.MultipartRequest("POST", uri);
 
@@ -178,12 +177,12 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
         // Get Colors
         objColors = await DetectObjectColor().detectColorCustom(boundingBox);
         // Get positions
-        positions = ObjectsPostionFinder(boundingBox).getPosition();
+        positions = ObjectsPostionFinder(boundingBox, classes!).getPosition();
 
         setState(() {
           detected = true;
-          // SemanticsService.announce("Detections Finished", TextDirection.ltr);
-          speaker.speakLabels("Detections Finished");
+          SemanticsService.announce("Detections Finished", TextDirection.ltr);
+          // speaker.speakLabels("Detections Finished");
         });
       } else {
         utilsObj.showSnackBar(context, "Image Uploaded Failed");
@@ -265,51 +264,74 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
             children: [
               detected
                   ? Semantics(
-                      // label: "Clear button press this to clear screen",
+                      button: true,
                       child: ElevatedButton(
                         onPressed: clearAll,
-                        child: const Text("Clear"),
+                        child: Semantics(
+                          excludeSemantics: true,
+                          label: "Press this to clear screen",
+                          child: const Text("Clear"),
+                        ),
                       ),
                     )
                   : Semantics(
-                      value: "Detect button press this to run detections",
-                      excludeSemantics: true,
+                      button: true,
                       child: ElevatedButton(
                         onPressed: detect,
-                        child: const Text("Detect"),
+                        child: Semantics(
+                          excludeSemantics: true,
+                          label: "Press this to run detections",
+                          child: const Text("Detect"),
+                        ),
                       ),
                     ),
               isSpeaking
                   ? Semantics(
-                      label: "Stop button press this to stop speaking",
+                      button: true,
                       child: ElevatedButton(
                         onPressed: stop,
-                        child: const Text("Stop"),
+                        child: Semantics(
+                          excludeSemantics: true,
+                          label: "Press this to stop speaking",
+                          child: const Text("Stop"),
+                        ),
                       ),
                     )
                   : Semantics(
-                      label: "Speak button press this to start speaking",
+                      button: true,
                       child: ElevatedButton(
                         onPressed: speak,
-                        child: const Text("Speak"),
+                        child: Semantics(
+                          excludeSemantics: true,
+                          label: "Press this to start speaking",
+                          child: const Text("Speak"),
+                        ),
                       ),
                     ),
               Semantics(
-                label: "Camera button to capture image",
+                button: true,
                 child: ElevatedButton(
                   onPressed: () {
                     setImage(ImageSource.camera);
                   },
-                  child: const Icon(Icons.camera),
+                  child: Semantics(
+                    excludeSemantics: true,
+                    label: "Campture Image",
+                    child: const Icon(Icons.camera),
+                  ),
                 ),
               ),
               Semantics(
-                label: "Gallery button to select image from gallery",
+                button: true,
                 child: ElevatedButton(
                   onPressed: () {
                     setImage(ImageSource.gallery);
                   },
-                  child: const Text("Select"),
+                  child: Semantics(
+                    excludeSemantics: true,
+                    label: "Press this to get image from gallery",
+                    child: const Text("Select"),
+                  ),
                 ),
               )
             ],
