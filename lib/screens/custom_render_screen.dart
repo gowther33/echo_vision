@@ -107,6 +107,8 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
       classes = [];
       objColors = [];
       positions = [];
+
+      stop();
     });
   }
 
@@ -137,7 +139,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
     });
 
     if (_image != null) {
-      var uri = Uri.parse("http://192.168.1.103:8000/object_detection");
+      var uri = Uri.parse("http://192.168.72.53:8000/object_detection");
 
       var request = http.MultipartRequest("POST", uri);
 
