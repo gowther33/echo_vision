@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:palette_generator/palette_generator.dart';
 
-import 'color_name.dart';
+import '../provider/color_name.dart';
 import 'package:image/image.dart'
     as img_; // Use an alias to differentiate the package name.
 
