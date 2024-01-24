@@ -176,10 +176,17 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
             (data['phrases'] as List).map((e) => e as String).toList();
         classes = class_;
 
+        // Start color detection and position detection concurrently
+        Future<List<String>> colorDetectionTask =
+            DetectObjectColor().detectColorCustom(boundingBox);
+        Future<List<String>> positionDetectionTask =
+            ObjectsPostionFinder(boundingBox, classes!).getPosition();
+
+        // Wait for both tasks to complete
         // Get Colors
-        objColors = await DetectObjectColor().detectColorCustom(boundingBox);
+        objColors = await colorDetectionTask;
         // Get positions
-        positions = ObjectsPostionFinder(boundingBox, classes!).getPosition();
+        positions = await positionDetectionTask;
 
         setState(() {
           detected = true;

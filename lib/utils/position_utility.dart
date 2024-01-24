@@ -7,7 +7,7 @@ class ObjectsPostionFinder {
 
   ObjectsPostionFinder(this.objDetect, this.cls);
 
-  List<String> getPosition() {
+  Future<List<String>> getPosition() async {
     for (int i = 0; i < objDetect.length; i++) {
       List<double> bbox = [
         objDetect[i][0],
