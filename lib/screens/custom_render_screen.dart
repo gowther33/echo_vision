@@ -188,7 +188,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
         Future<List<String>> colorDetectionTask =
             DetectObjectColor().detectColorCustom(boundingBox);
         Future<List<String>> positionDetectionTask =
-            ObjectsPostionFinder(boundingBox, classes!).getPosition();
+            ObjectsPostionFinder(boundingBox).getPosition();
 
         // Wait for both tasks to complete
         // Get Colors

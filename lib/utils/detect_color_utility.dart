@@ -27,10 +27,10 @@ class DetectObjectColor {
       // Crop the image based on the detected object's coordinates
       img_.Image croppedObj = img_.copyCrop(
         img!,
-        (objDetect[i][0]! * w!).toInt(),
-        (objDetect[i][1]! * h!).toInt(),
-        (objDetect[i][2]! * w!).toInt(),
-        (objDetect[i][3]! * h!).toInt(),
+        (objDetect[i][0]!).toInt(),
+        (objDetect[i][1]!).toInt(),
+        (objDetect[i][2]!).toInt(),
+        (objDetect[i][3]!).toInt(),
       );
 
       // Encode the resulting image to the PNG image format.
@@ -56,7 +56,7 @@ class DetectObjectColor {
         ui.Color dominantColor = paletteGenerator.dominantColor!.color;
         dominantColors.add(getColorName(dominantColor));
       } catch (e) {
-        dominantColors.add("Black");
+        dominantColors.add("White");
       }
       // id += 1;
     }
