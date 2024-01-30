@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 
 import 'package:echo_vision/loader/loader_state.dart';
-import 'package:echo_vision/utils/speak_provider_utility.dart';
+import 'package:echo_vision/provider/speak_provider_utility.dart';
 import 'package:flutter/material.dart';
 
 import 'package:echo_vision/utils/utils.dart';
@@ -107,6 +107,8 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
       classes = [];
       objColors = [];
       positions = [];
+
+      stop();
     });
   }
 
@@ -125,6 +127,14 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
       isSpeaking = false;
     });
     speaker.stopSpeaking();
+  }
+
+  void showSuccessBar() {
+    utilsObj.showSnackBar(context, "Image Uploaded");
+  }
+
+  void showFailureBar() {
+    utilsObj.showSnackBar(context, "Image Uploaded Failed");
   }
 
   // Upload function
@@ -151,7 +161,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
 
       // Store classes as a simple List of Strings
       if (response.statusCode == 200) {
-        utilsObj.showSnackBar(context, "Image Uploaded");
+        showSuccessBar();
         Map<String, dynamic> data = json.decode(response.body);
 
         for (var element in data['boxes']) {
@@ -174,10 +184,17 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
             (data['phrases'] as List).map((e) => e as String).toList();
         classes = class_;
 
+        // Start color detection and position detection concurrently
+        Future<List<String>> colorDetectionTask =
+            DetectObjectColor().detectColorCustom(boundingBox);
+        Future<List<String>> positionDetectionTask =
+            ObjectsPostionFinder(boundingBox).getPosition();
+
+        // Wait for both tasks to complete
         // Get Colors
-        objColors = await DetectObjectColor().detectColorCustom(boundingBox);
+        objColors = await colorDetectionTask;
         // Get positions
-        positions = ObjectsPostionFinder(boundingBox, classes!).getPosition();
+        positions = await positionDetectionTask;
 
         setState(() {
           detected = true;
@@ -185,7 +202,7 @@ class _CustomRenderScreenState extends State<CustomRenderScreen> {
           // speaker.speakLabels("Detections Finished");
         });
       } else {
-        utilsObj.showSnackBar(context, "Image Uploaded Failed");
+        showFailureBar();
       }
     } else {
       utilsObj.showSnackBar(context, "No Image Selected");

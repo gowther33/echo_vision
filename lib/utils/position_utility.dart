@@ -3,11 +3,10 @@ import 'package:echo_vision/utils/globals.dart';
 class ObjectsPostionFinder {
   final List<List<double>> objDetect;
   final List<String> positions = [];
-  final List<String> cls;
 
-  ObjectsPostionFinder(this.objDetect, this.cls);
+  ObjectsPostionFinder(this.objDetect);
 
-  List<String> getPosition() {
+  Future<List<String>> getPosition() async {
     for (int i = 0; i < objDetect.length; i++) {
       List<double> bbox = [
         objDetect[i][0],

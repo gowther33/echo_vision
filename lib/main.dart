@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 
 void main() async {
+  // If Flutter needs to call native code before calling runApp
+  // makes sure that you have an instance of the WidgetsBinding,
+  // which is required to use platform channels to call the native code.
   WidgetsFlutterBinding.ensureInitialized();
 
   // Obtain a list of the available cameras on the device.
+  // Calls native code
   List<CameraDescription> cameras = await availableCameras();
 
   runApp(MyApp(cameras: cameras));

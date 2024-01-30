@@ -17,6 +17,7 @@ class TextSpeaker {
 // labels = class + position + color
 
   // Speak labels & position detection ***
+
   void speakLabels(String labels) {
     // Speak labels
     _flutterTts.speak(labels);
