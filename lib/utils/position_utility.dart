@@ -15,7 +15,7 @@ class ObjectsPostionFinder {
         objDetect[i][2],
         objDetect[i][3],
       ];
-      // [502.8691101074219, 110.95758056640625, 813.1492919921875, 424.7120361328125]
+
       double centerX = (bbox[0] + bbox[2]) / 2;
       double centerY = (bbox[1] + bbox[3]) / 2;
       // Detect Positions
